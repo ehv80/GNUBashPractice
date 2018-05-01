@@ -1,0 +1,11 @@
+#!/bin/bash
+# Ejemplo 4: Estructuras condicionales
+echo -n "Ingrese un valor numérico:"
+read valor
+if [ $valor -eq 20 ] ; then
+	echo "El valor es igual a 20";
+else
+	echo "El valor ingresado es distinto a 20";
+fi
+
+

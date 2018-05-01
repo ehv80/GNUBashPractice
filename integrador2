@@ -1,0 +1,258 @@
+#!/bin/bash
+# Ejemplo integrador 2
+# Script realizado por Demian Pablo Alonso y modificado por mí
+
+# Función para el manejo de usuarios
+manejo_usuarios() {
+	echo " "
+	echo "Sistema de Manejo de Usuarios"
+	echo "-----------------------------"
+	echo " "
+	select opcion in "Agregar Usuario" "Borrar Usuario" "Volver"
+	do
+		if [ "$opcion" = "Agregar Usuario" ]; then
+			echo -n "Ingrese el nombre del nuevo usuario: "
+			read Usuario
+			echo -n "Ingrese una contraseña para el nuevo usuario: "
+			read clave
+			echo -n "Ingrese el nombre del directorio personal del nuevo usuario: "
+			read home
+			echo -n "Agregando usuario $Usuario... "
+#adduser $Usuario
+			/usr/sbin/useradd $Usuario -d /home/${home} -p ${clave}
+			if [ $? -eq 0 ]; then
+				echo "OK!"
+			else
+				echo "SE HA PRODUCIDO UN ERROR!"
+			fi
+		elif [ "$opcion" = "Borrar Usuario" ]; then
+			echo -n "Ingrese el nombre del usuario: "
+			read Usuario
+			echo -n "Borrando usuario $Usuario... "
+			userdel $Usuario
+			if [ $? -eq 0 ]; then
+				echo "OK!"
+			else
+				echo "SE HA PRODUCIDO UN ERROR!"
+			fi
+		elif [ "$opcion" = "Volver" ]; then
+			break;
+		fi
+	done
+	}
+
+# Función para crear copias de respaldo
+copia_respaldo() {
+	echo " "
+	echo "Sistema de Backup"
+	echo "-----------------"
+	echo " "
+	echo -n "Ingrese el directorio donde se quiere hacer la copia: "
+	read directorio
+	# En caso de que el directorio no exista lo crea
+	if [ ! -d $directorio ]; then
+		echo "El directorio \"$directorio\" no existe!"
+		echo "Creando el directorio $directorio ... "
+		mkdir -p $directorio
+		echo "Cambiando permisos a $directorio ... "
+		# Permiso 600 para que solo el root tenga acceso
+		chmod 600 $directorio
+	fi
+# En la variable archivos se guarda el contenido del archivo "archivos_a_respaldar"
+# En el archivo "archivos_a_respaldar" hay un listado con todos los archivos y 
+# directorios que hay que hacer copias de respaldo. 
+# Estos simplemente están listados uno debajo del otro.
+# El comando "cat" lo único que hace es listar un archivo en pantalla, pero en
+# lugar de ir a la pantalla es direccionado a la variable.
+	echo -n  "Ingrese el archivo o directorio al que hay que rspaldar:"
+	read fuente
+	archivos_a_respaldar=`ls $fuente`
+	archivos=`cat archivos_a_respaldar`
+# Este for recorre todos los archivos que hayan sido escritos en el archivo
+# "archivos_a_respaldar" y hará una copia de cada uno de ellos.
+	for archivo in $archivos
+	do
+# Primero pregunta si el archivo actual es realmente un archivo (podría también ser
+# un directorio), y en caso de que lo sea hace una copia.
+		if [ -f $archivo ]; then
+			echo -n "Copiando archivo $archivo ... "
+			cp $archivo $directorio
+# El siguiente if controla que no hubiese ningún error. La variable interna $?
+# contiene el valor de retorno del último programa ejecutado dentro del shell
+# (en este caso el comando cp). Si es 0 significa que no hubo ningún error y 
+# si es distinto de cero es porque hubo algún error.
+			if [ $? -eq 0 ]; then
+				echo "OK!"
+			else
+				echo "SE PRODUJO UN ERROR!"
+			fi
+# El siguiente if pregunta si el archivo actual es un directorio. La razón por
+# la cuál separé la copia de archivos de la de directorios es porque el comando
+# cp utiliza distintos parámetros para copiarlos.
+		elif [ -d $archivo ]; then
+			echo -n "Copiando directorio $archivo ..."
+# El comando cp se usa con el parámetro -R en forma recursiva para copiar árboles
+# de directorio completos.
+			cp -R $archivo $directorio
+		fi
+		if [ $? -eq 0 ]; then
+			echo "OK!"
+		else
+			echo "SE PRODUJO UN ERROR!"
+		fi
+	done
+}
+
+# Función para actualizar el archivo /etc/motd "message of the day"
+actualizar_motd() {
+# Guarda en las distintas variables los datos correspondientes al día, número del día,
+# mes y año. Todos estos datos se obtienen con el comando date.
+# Para más información: man date
+	dia=`date +%w`
+	numero_dia=`date +%d`
+	mes=`date +%m`
+	año=`date +%y`
+# Crea una cadena con el nombre del día
+	case $dia in
+		1) nombre_dia="Lunes";;
+		2) nombre_dia="Martes";;
+		3) nombre_dia="Miércoles";;
+		4) nombre_dia="Jueves";;
+		5) nombre_dia="Viernes";;
+		6) nombre_dia="Sabado";;
+		7) nombre_dia="Domingo";;
+	esac
+# Crea una cadena con el nombre del mes
+	case $mes in
+		01) nombre_mes="Enero";;
+		02) nombre_mes="Febrero";;
+		03) nombre_mes="Marzo";;
+		04) nombre_mes="Abril";;
+		05) nombre_mes="Mayo";;
+		06) nombre_mes="Junio";;
+		07) nombre_mes="Julio";;
+		08) nombre_mes="Agosto";;
+		09) nombre_mes="Septiembre";;
+		10) nombre_mes="Octubre";;
+		11) nombre_mes="Noviembre";;
+		12) nombre_mes="Diciembre";;
+	esac
+# Guarda en un archivo temporario (/tmp/motd_temp) los datos. Primero,
+# en forma de título, guarda la fecha con el formato:
+# nombre_dia, numero_dia de nombre_mes de numero_año
+
+	echo "$nombre_dia $numero_dia de $nombre_mes de $año" > /tmp/motd_temp
+
+# También le agrega una línea más abajo el mensaje "Aviso del día:" para
+# luego agregar el mensaje.
+
+	echo "Aviso del día: " >> /tmp/motd_temp
+
+# Por último se le agrega una separación entre el encabezado y el cuerpo del
+# mensaje
+
+	echo " " >> /tmp/motd_temp
+	echo " "
+	echo "Mensaje del día"
+	echo "---------------"
+	echo " "
+	echo "Escriba el mensaje del día (Para terminar escriba una línea con solamente un punto):"
+	salir=0
+	linea=""
+	texto=""
+# El siguiente while se ejecutará hasta que se ingrese una línea que tenga solamente un punto
+	while [ $salir -eq 0 ];
+	do
+		read linea
+# Cuando la línea sea solo un punto se cambiará el valor de la variable salir
+# a 1 causando la salida del bucle.
+		if [ "$linea" = "." ]; then
+			salir=1
+		else
+			echo $linea >> /tmp/motd_temp
+		fi
+	done
+# Primero copia el archivo temporario sobre el verdadero archivo motd (/etc/motd)
+	cp /tmp/motd_temp /etc/motd
+# Después elimina el archivo temporario ya que no sirve más
+	rm /tmp/motd_temp
+}
+
+# Subfunciones para manejo_procesos()
+
+	buscar_proceso() {
+		echo -n "Ingrese el nombre del proceso a buscar: "
+		read cadena_a_buscar
+		ps -ax | grep $cadena_a_buscar
+		if [ $? -ne 0 ]; then
+			echo "No se ha encontrado ningún proceso que contenga el patón \"$cadena_a_buscar\""
+		fi
+ 		echo " "
+	}
+
+ 	matar_proceso() {
+		echo -n "Ingrese el PID: "
+		read pid
+		kill -KILL $pid
+		if [ $? -ne 0 ]; then
+			echo "NO EXISTE EL PID \"$pid\""
+		else
+			echo "EL PROCESO \"$pid\" HA SIDO ELIMINADO EXITOSAMENTE!"
+		fi
+		echo " "
+	}
+
+# Función para el manejo de procesos
+manejo_procesos() {
+	echo " "
+	echo "Manejo de Procesos"
+	echo "------------------"
+	echo " "
+	select op in "Buscar Proceso" "Matar Proceso" "Volver";
+	do
+		case $op in
+			"Buscar Proceso") buscar_proceso ;;
+# El comando ps sirve para mostrar los procesos que se estén ejecutando
+# Si se le pasa el parámetro -ax mostrará absolutamente todos los procesos que se ejecuten.
+# El comando grep busca una cadena dentro de otra.
+# Ambos comandos está unidos por una tubería, por lo que dentro del listado de ps, grep
+# busca la cadena que se ingresó
+# El siguiente if es para el caso de que no se halla encontrado ninguna cadena y muestre
+# un mensaje aclaratorio
+			"Matar Proceso") matar_proceso ;;
+# El comando kill sirve para matar un proceso. En este caso se le pasa el 
+# parámetro -KILL (lo mismo que -9) que sirve para mandarle la señal de muerte
+			"Volver") break ;;
+		esac
+	done
+}
+
+# Comienzo del programa
+	clear
+	echo " "
+	echo "Menu Principal"
+	echo "--------------"
+	echo " "
+	select opcion in "Manejo de Usuarios" "Crear Copia de Respaldo" "Actualizar motd" "Gestionar Procesos" "Sincronizar R/W" "Salir"
+	do
+		clear
+		case $opcion in
+			"Manejo de Usuarios") manejo_usuarios ;;
+			"Crear Copia de Respaldo") copia_respaldo ;;
+			"Actualizar motd") actualizar_motd ;;
+			"Gestionar Procesos") manejo_procesos ;;
+			"Sincronizar R/W")
+						echo -n "Sincronizando... "
+						sync
+						echo "OK!" ;;
+			"Salir") break ;;
+		esac
+# El comando sleep espera una n cantidad de segundos para que sea posible
+# leer los mensajesanteriores a la impresión del menú
+		sleep 4
+		clear
+		echo " "
+		echo "Menu Principal"
+		echo "--------------"
+		echo " "
+	done

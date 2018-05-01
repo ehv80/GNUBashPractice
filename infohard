@@ -1,0 +1,273 @@
+#!/bin/bash
+
+# infohard V0.0.1  Genera un informe del hardware del sistema.
+# Se guarda en un archivo llamado infohard.txt cuyo
+# contenido varia segun las opciones que elija el usuario.
+
+comprobacion() {
+	if [ $? -eq 0 ]; then
+		echo "OK!"
+	else
+		echo "SE PRODUJO UN ERROR!!!"
+	fi
+}
+
+informe_pnpdump() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LOS DISPOSITIVOS ISA"
+echo "----------------------------------------------"
+echo " "
+select opcion0 in "Mostrar datos de los dispositivos ISA" "Guardar en Archivo" "Volver";
+do
+	case $opcion0 in
+		"Mostrar datos de los dispositivos ISA")
+			echo "Obteniendo informacion de los dispositivos ISA ..." ;
+			/sbin/pnpdump | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo informacion de los dispositivos ISA ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: INFORMACION DE LOS DISPOSITIVOS ISA" >> ./infohard.txt ;
+			/sbin/pnpdump >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac
+done			
+}
+
+informe_cpu() {
+echo " "
+echo "SISTEMA DE INFORMACION DEL MICROPROCESADOR"
+echo "------------------------------------------"
+echo " "
+select opcion1 in "Mostrar datos del Microprocesador" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion1 in
+		"Mostrar datos del Microprocesador")
+			echo "Obteniendo informacion del Microprocesador ..." ;
+			cat /proc/cpuinfo | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo informacion del Microprocesador ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: INFORMACION DEL MICROPROCESADOR" >> ./infohard.txt ;
+			cat /proc/cpuinfo >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac	
+done
+}
+
+informe_lspci() {
+echo " "
+echo "SISTEMA DE INFORMACION DE DISPOSITIVOS PCI"
+echo "------------------------------------------"
+echo " "
+select opcion2 in "Mostrar datos de los dispositivos PCI" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion2 in
+		"Mostrar datos de los dispositivos PCI") 
+			echo "Obteniendo informacion de los dispositivos PCI ..." ;
+			/sbin/lspci -vv | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo informacion de los dispositivos PCI ..." ;
+			echo " " >> ./infohard.txt ;
+	   		echo "SECCION: INFORMACION DE LOS DISPOSITIVOS PCI" >> ./infohard.txt ;
+			lspci -vv >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac
+done
+}
+
+informe_dmesg() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LOS DEMONIOS DEL SISTEMA"
+echo "--------------------------------------------------"
+echo " "
+select opcion3 in "Ver salida de dmesg" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion3 in
+		"Ver salida de dmesg")
+			echo "Obteniendo informacion de los demonios del sistema ..." ;
+			dmesg | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+		 	echo "Obteniendo informacion de los demonios del sistema ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: INFORMACION DE LOS DEMONIOS" >> ./infohard.txt ;
+			dmesg >> ./infohard.txt ;
+			comprobacion ;;
+			"Volver") break ;;
+		esac
+	done
+}
+
+informe_ifconfig() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LAS TARJETAS DE RED"
+echo "---------------------------------------------"
+echo " "
+select opcion4 in "Mostrar datos de las tarjetas de red" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion4 in
+		"Mostrar datos de las tarjetas de red") 
+			echo "Obteniendo informacion de las tarjetas de red ..." ;
+			/sbin/ifconfig | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo informacion de las tarjetas de red ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: INFORMACION DE LAS TARJETAS DE RED" >> ./infohard.txt ;
+			/sbin/ifconfig >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac
+done
+}
+
+informe_mem() {
+echo " "
+echo "SISTEMA DE INFORMACION DE MEMORIA"
+echo "---------------------------------"
+echo " "
+	select opcion5 in "Mostrar datos de la memoria" "Guardar en Archivo" "Volver" ;
+	do
+		case $opcion5 in
+			"Mostrar datos de la memoria")
+		echo "Obteniendo informacion de la memoria (cantidades en megabytes) ..." ;
+				free -m | less ;
+				comprobacion ;;
+			"Guardar en Archivo")
+				echo " " >> ./infohard.txt ;
+				echo "SECCION: INFORMACION DE LA MEMORIA" >> ./infohard.txt ;
+				free -m >> infohard.txt ;
+				comprobacion ;;
+			"Volver") break ;;
+		esac
+	done
+}
+
+informe_fstab() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LOS MEDIOS DE ALMACENAMIENTO MONTADOS"
+echo "---------------------------------------------------------------"
+echo " "
+select opcion6 in "Mostrar datos de los medios de almacenamiento montados" "Guardar en Archivo" "Volver" ;
+do
+   case $opcion6 in
+      "Mostrar datos de los medios de almacenamiento montados")
+	 echo "Obteniendo informacion de los medios de almacenamiento montados ..." ;
+	 cat /etc/fstab | less ;
+	 comprobacion ;;
+      "Guardar en Archivo")
+	echo "Obteniendo informacion de los medios de almacenamiento montados ..." ;
+	echo " " >> ./infohard.txt ;
+	echo "SECCION: INFORMACION DE LOS MEDIOS DE ALMACENAMIENTO MONTADOS" >> ./infohard.txt ;
+	cat /etc/fstab >> ./infohard.txt ;
+	comprobacion ;;
+      "Volver") break ;;
+   esac
+done
+}
+
+informe_fdisk() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LAS PARTICIONES DE LOS DISCOS"
+echo "-------------------------------------------------------"
+echo " "
+select opcion7 in "Ver datos de las particiones de los discos" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion7 in
+		"Ver datos de las particiones de los discos")
+  echo "¡ASEGURESE DE EXTRAER EL DISQUETE, DE LO CONTRARIO TAMBIEN SE INCLUIRA EN EL INFORME!" ;
+	sleep 5 ;
+	echo "Obteniendo informacion de las particiones de los discos ..." ;
+	/sbin/fdisk /dev/?d? -l | less ;
+	comprobacion ;;
+		"Guardar en Archivo")
+  echo "¡ASEGURESE DE EXTRAER EL DISQUETE, DE LO CONTRARIO TAMBIEN SE INCLUIRA EN EL INFORME!" ;
+			sleep 5 ;
+			echo "Obteniendo informacion de las particiones de los discos ..." ;
+			echo " " >> ./infohard.txt ;
+		echo "SECCION: INFORMACION DE LAS PARTICIONES DE LOS DISCOS" >> ./infohard.txt ;
+		/sbin/fdisk /dev/?d? -l >> ./infohard.txt ;
+		comprobacion ;;
+	 "Volver") break ;;
+	esac
+done
+}
+
+informe_lpstat() {
+echo " "
+echo "SISTEMA DE INFORMACION DE LAS IMPRESORAS"
+echo "----------------------------------------"
+echo " "
+select opcion8 in "Mostrar informacion de las impresoras" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion8 in
+		"Mostrar informacion de las impresoras") 
+			echo "Obteniendo informacion de las impresoras ..." ;
+			/usr/bin/lpstat -t | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo informacion de las impresoras ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: INFORMACION DE LAS IMPRESORAS" >> ./infohard.txt ;
+			/usr/bin/lpstat -t | less >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac	
+done
+}
+
+informe_hostname() {
+echo " "
+echo "SISTEMA DE INFORMACION DEL NOMBRE DEL ORDENADOR"
+echo "-----------------------------------------------"
+echo " "
+select opcion9 in "Mostrar el nombre del ordenador" "Guardar en Archivo" "Volver" ;
+do
+	case $opcion9 in
+		"Mostrar el nombre del ordenador")
+			echo "Obteniendo el nombre del ordenador ..." ;
+			/bin/hostname | less ;
+			comprobacion ;;
+		"Guardar en Archivo")
+			echo "Obteniendo el nombre del ordenador ..." ;
+			echo " " >> ./infohard.txt ;
+			echo "SECCION: NOMBRE DEL ORDENADOR" >> ./infohard.txt ;
+			/bin/hostname >> ./infohard.txt ;
+			comprobacion ;;
+		"Volver") break ;;
+	esac
+done
+}
+
+# COMIENZO DEL PROGRAMA
+clear
+echo " "
+echo "----------------------MENU-PRINCIPAL-----------------------"
+echo " "
+select opcion in "NOMBRE DEL ORDENADOR" "IMPRESORAS" "PARTICIONES DE LOS DISCOS" "MEDIOS DE ALMACENAMIENTO MONTADOS" "MEMORIA" "TARJETAS DE RED" "DEMONIOS DEL SISTEMA" "DISPOSITIVOS PCI" "MICROPROCESADOR" "DISPOSITIVOS ISA" "SALIR" ;
+do
+	clear
+	case $opcion in
+		"NOMBRE DEL ORDENADOR") informe_hostname ;;
+		"IMPRESORAS") informe_lpstat ;;
+		"PARTICIONES DE LOS DISCOS") informe_fdisk ;;
+		"MEDIOS DE ALMACENAMIENTO MONTADOS") informe_fstab ;;
+		"MEMORIA") informe_mem ;;
+		"TARJETAS DE RED") informe_ifconfig ;;
+		"DEMONIOS DEL SISTEMA") informe_dmesg ;;
+		"DISPOSITIVOS PCI") informe_lspci ;;
+		"MICROPROCESADOR") informe_cpu ;;
+		"DISPOSITIVOS ISA") informe_pnpdump ;;
+		"SALIR") break;;
+	esac
+	clear
+	echo " "
+	echo "----------------------MENU-PRINCIPAL-----------------------"
+	echo " "
+done

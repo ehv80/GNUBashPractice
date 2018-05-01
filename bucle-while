@@ -1,0 +1,10 @@
+#!/bin/bash
+# Ejemplo 5: Uso del while
+opcion=100	# Ponemos opcion en 100 para que el ciclo se cumpla
+		# la primera vez
+while [ $opcion != 0 ] ;
+do
+	echo "opción = $opcion "
+	echo -n "Ingrese un número [0 para salir]:"
+	read opcion ;
+done

@@ -1,0 +1,3 @@
+#!/bin/bash
+# Ejemplo 1: Hola Mundo!
+echo "Hola Mundo!"

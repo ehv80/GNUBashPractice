@@ -1,0 +1,14 @@
+#!/bin/bash
+# Ejemplo 6: Creación de menús con select
+# Modo de uso: ./menu-select [Nº_opcion]
+
+select opcion in "Hola Mundo" "Adios Mundo cruel"
+do
+	if [ $opcion = "Hola Mundo" ] ;
+	then 
+		echo "Hola Mundo";
+	else 
+		echo "Adios Mundo cruel";
+	fi
+	break
+done

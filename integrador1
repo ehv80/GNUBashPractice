@@ -1,0 +1,23 @@
+#!/bin/bash
+# Ejemplo integrador 1
+# Uso de variables definidas por el usuario y variables definidas dentro de
+# Linux. Uso de la estructura condicional if. Uso de la función echo.
+# Script hecho por Demian Pablo Alonso
+
+# Los espacios entre el if y el corchete, entre el corchete y los valores,
+# entre los valores y el igual, son obligatorios ya que sino producirían
+# un error.
+if [ $# -eq 0 ] ; then	# $# significa cantidad de argumentos tipeados
+	echo -n "Al menos hay que pasar un "	# -n echo no avanza línea
+	echo "argumento en la línea de comandos." ;
+else
+	cadena="Hola"
+	if [ $1 = $cadena ] ; then
+		echo "El nombre del script es: $0 "
+		echo "Todos los parámetros son: $* "
+		echo "La cantidad de parámetros es: $# " ;
+	else
+		echo "No se ha ingresado la palabra $cadena " ;
+	fi
+fi
+

@@ -1,0 +1,8 @@
+#!/bin/bash
+# Archivo evalexp
+# Ejemplo 4: evaluación de expresiones aritméticas
+# Uso: ./evalexp
+num1=5
+num2=20
+num3=$[num1+num2*100]
+echo $num3
